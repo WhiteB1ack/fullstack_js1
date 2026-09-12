@@ -53,10 +53,11 @@ router.post('/todo', checkTodoMiddleware, async(req, res) => {
 // 删除操作
 router.delete('/todo/:id', async(req, res) => {
   // 获取数据  id
-
+  console.log(req.params.id)
   // 查询指定项是否存在
   try {
     const todo = await TodoModel.findByIdAndDelete(req.params.id)
+    console.log(todo)
     if(!todo){
       return res.json({
         code: 6001,
@@ -74,6 +75,57 @@ router.delete('/todo/:id', async(req, res) => {
     res.json({
       code: 6002,
       msg: '删除失败',
+      data: null
+    })
+  }
+})
+
+// 状态更改
+router.patch('/todo/:id', async(req, res) => {
+  const { id } = req.params
+  const { title, completed } = req.body
+
+  const updateData: {
+    title?: string,
+    completed?: string
+  } = {}
+
+  if(title !== undefined) {
+    updateData.title = title
+  }
+
+  if(completed !== undefined) {
+    updateData.completed = completed
+  }
+
+  try {
+    const todo = await TodoModel.findByIdAndUpdate(
+      id,
+      updateData,
+      { 
+        returnDocument: 'after', 
+        runValidators: true
+      }
+    )
+
+    if(!todo){
+      return res.json({
+        code: 7001,
+        msg: 'Todo 不存在',
+        data: null
+      })
+    }
+
+    res.json({
+      code: 7000,
+      msg: '状态修改成功',
+      data: todo
+    })
+  } catch(err) {
+    console.log('修改状态失败:', err)
+    res.json({
+      code: 7002,
+      msg: '修改状态失败',
       data: null
     })
   }

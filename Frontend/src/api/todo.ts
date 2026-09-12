@@ -14,5 +14,10 @@ export const createTodoApi = ( data: TodoData ) => {
 
 // 删除
 export const deleteTodoApi = ( _id: string ) => {
-  return request.delete(`/todo/:${_id}`)
+  return request.delete(`/todo/${_id}`)
+}
+
+// 更新
+export const updateTodoApi = ( _id: string) => {
+  return request.patch(`/todo/${_id}`)
 }

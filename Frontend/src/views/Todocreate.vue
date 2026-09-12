@@ -39,8 +39,8 @@ const createTodo = async () => {
 标题: <input type="text" v-model="title" /><br>
 简介: <input type="text" v-model="abstract" /><br>
 截止时间: <input type="date" v-model="deadline"><br>
-
 <button @click="createTodo">提交</button>
+<RouterLink to="/todo"> 总览列表 </RouterLink>
 
 </template>
 
