@@ -25,14 +25,14 @@ const handleLogin = async() => {
       password: password.value
     })
 
-    console.log(username.value, password.value)
-    console.log(res.data)
+    const token = res.data.data.token
+    console.log(token)
+    localStorage.setItem('token', token)  
 
   } catch(err) {
     console.error(err)
   }
 
-  console.log(username.value, password.value)
   username.value = password.value = '';
 }
 

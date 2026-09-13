@@ -1,5 +1,4 @@
 export interface TodoData {
-  userId: string,
   title: string,
   abstract: string,
   completed: boolean,

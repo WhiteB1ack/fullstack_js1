@@ -2,6 +2,9 @@ import express from 'express'
 import { Router } from 'express'
 import UserModel from '../../models/UserModel.ts'
 import { checkUserMiddleware } from '../../middleware/checkUserMiddleware.ts'
+import bcrypt from 'bcrypt'
+import jwt from 'jsonwebtoken'
+import { secret } from '../../config/config.ts'
 
 const router = Router()
 
@@ -9,30 +12,46 @@ const router = Router()
 router.post('/login', checkUserMiddleware, async (req, res) => {
   // 获取用户名和密码
   let { username, password } = req.body;
-
-  // 查询数据库
   try {
-    const data = await UserModel.findOne({ username: username, password: password })
+    const user = await UserModel.findOne({ username })
 
-    console.log(data)
-    if(!data){
-      // 登录失败
+    if(!user) {
       return res.status(400).json({
-        code: 2002,
-        msg: '用户名或密码错误',
+        code: 2001,
+        msg: '该用户不存在',
         data: null
       })
-    } 
+    }
 
-    // 登陆成功
-    res.status(204).json({
-      code: 2000,
-      msg: '登陆成功',
-      data: null
-    })
-    
+    const isMatch = await bcrypt.compare(
+      password,
+      user.passwordHash
+    )
+
+    if(!isMatch){
+      return res.status(400).json({
+        code: 2002,
+        msg: '密码错误',
+        data: null
+      })
+    } else {
+      // 创建token
+      let token = jwt.sign({
+        username: username,
+        _id: user._id
+      }, secret, {
+        expiresIn: 60 * 60 * 24 * 7
+      })
+
+      res.status(200).json({
+        code: 2000,
+        msg: '登陆成功',
+        data: {
+          token
+        }
+      })
+    }
   } catch {
-    // 数据库异常
     res.status(500).json({
       code: 2001,
       msg: '数据库读取失败',
@@ -45,6 +64,8 @@ router.post('/login', checkUserMiddleware, async (req, res) => {
 router.post('/register', checkUserMiddleware, async (req, res) => {
   // 获取用户名和密码
   let { username, password } = req.body;
+
+  const passwordHash = await bcrypt.hash(password, 10)
 
   // 查询数据库
   try {
@@ -60,7 +81,7 @@ router.post('/register', checkUserMiddleware, async (req, res) => {
     }
     await UserModel.create({
       username,
-      password
+      passwordHash
     });
 
     res.json({

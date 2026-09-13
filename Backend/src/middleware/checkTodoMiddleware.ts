@@ -2,7 +2,6 @@ import type { Request, Response, NextFunction } from "express";
 import mongoose from "mongoose";
 
 interface TodoBody {
-  userId: string,
   title: string,
   abstract: string,
   completed: boolean,
@@ -14,15 +13,7 @@ export const checkTodoMiddleware = (
   res: Response,
   next: NextFunction
 ) => {
-  const { userId, title, abstract, completed, deadline } = req.body
-
-  if(!userId){
-    return res.status(401).json({
-      code: 6001,
-      msg: 'token已过期',
-      data: null
-    })
-  }
+  const { title, abstract, completed, deadline } = req.body
 
   if(!title){
     return res.status(400).json({

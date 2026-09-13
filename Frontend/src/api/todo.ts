@@ -9,6 +9,7 @@ export const getTodoListApi= () => {
 
 // 新建
 export const createTodoApi = ( data: TodoData ) => {
+  console.log('开始提交后端')
   return request.post('/todo', data)
 }
 
@@ -18,6 +19,11 @@ export const deleteTodoApi = ( _id: string ) => {
 }
 
 // 更新
-export const updateTodoApi = ( _id: string) => {
-  return request.patch(`/todo/${_id}`)
+export const updateTodoApi = ( 
+  _id: string,
+  completed: boolean
+) => {
+  return request.patch(`/todo/${_id}`, {
+    completed
+  })
 }

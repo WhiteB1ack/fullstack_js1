@@ -29,9 +29,11 @@ const deleteTodo = async (_id: string) => {
   }
 }
 
-const updateTodo = async (_id: string) => {
+const updateTodo = async (todo: Todo) => {
+  const completed = !todo.completed
+  
   try {
-    const res = await updateTodoApi(_id)
+    const res = await updateTodoApi(todo._id, completed)
     console.log(res)
     await getList()
   } catch (err) {
@@ -68,6 +70,14 @@ onMounted(() => {
           {{ todo.title }}
         </h3>
 
+        <p v-if="todo.abstract">
+          <strong>简介: </strong>
+          <span>
+            {{ todo.abstract }}
+          </span>
+        </p>
+
+
         <p>
           <strong>截止日期: </strong>
           <time :datetime="todo.deadline">
@@ -96,9 +106,9 @@ onMounted(() => {
 
         <button
           type="button"
-          @click="updateTodo(todo._id)"
+          @click="updateTodo(todo)"
         >
-          完成
+          {{ todo.completed ? '取消完成' : '完成' }}
         </button>
 
         </li>

@@ -3,7 +3,7 @@ import { createTodoApi } from '@/api/todo';
 import type { Todo, TodoData } from '../types/todo'
 import { ref } from 'vue';
 
-const userId = ref('6aa192996cb6f8e08466e5c0')
+const userId = localStorage.getItem('token')
 const title = ref('')
 const abstract = ref('')
 const completed = ref(false)
@@ -12,7 +12,6 @@ const deadline = ref('')
 const createTodo = async () => {
   // 校验数据
   const data = {
-    userId: userId.value,
     title: title.value,
     abstract: abstract.value,
     completed: completed.value,
@@ -22,6 +21,7 @@ const createTodo = async () => {
   // 函数操作
   console.log('开始提交')
   try {
+    console.log('开始提交后端')
     await createTodoApi(data)
     console.log('创建成功')
   } catch(err) {

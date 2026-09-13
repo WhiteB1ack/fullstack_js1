@@ -1,20 +1,22 @@
 import { Router } from 'express'
 import TodoModel from '../../models/TodoModel'
 import { checkTodoMiddleware } from '../../middleware/checkTodoMiddleware'
+import { checkTokenMiddleware } from '../../middleware/checkTokenMiddleware'
 
 const router = Router()
 
 // 获取用户对应列表
-router.get('/todo', async(req, res) => {
-  // // 获取用户ID
+router.get('/todo', checkTokenMiddleware, async(req, res) => {
+  // 获取用户ID
+  const userId = req.user._id
 
   try {
-    const data = await TodoModel.find({})
+    const todoList = await TodoModel.find({ userId })
 
     res.json({
       code: 4000,
       msg: '检索成功',
-      data: data
+      data: todoList
     })
   } catch {
     res.json({
@@ -27,13 +29,14 @@ router.get('/todo', async(req, res) => {
 })
 
 // 增加操作
-router.post('/todo', checkTodoMiddleware, async(req, res) => {
+router.post('/todo', checkTokenMiddleware, checkTodoMiddleware, async(req, res) => {
   // 解包
-  const { userId, title, abstract, completed, deadline } = req.body
-  
+  const { title, abstract, completed, deadline } = req.body
+  const userId = req.user._id
+
   // 校验
   try {
-    const data = { userId ,title, abstract, completed, deadline }
+    const data = { userId, title, abstract, completed, deadline }
     await TodoModel.create(data);
 
     res.json({
@@ -83,28 +86,13 @@ router.delete('/todo/:id', async(req, res) => {
 // 状态更改
 router.patch('/todo/:id', async(req, res) => {
   const { id } = req.params
-  const { title, completed } = req.body
-
-  const updateData: {
-    title?: string,
-    completed?: string
-  } = {}
-
-  if(title !== undefined) {
-    updateData.title = title
-  }
-
-  if(completed !== undefined) {
-    updateData.completed = completed
-  }
-
+  const completed = req.body.completed
   try {
     const todo = await TodoModel.findByIdAndUpdate(
       id,
-      updateData,
+      { completed: completed },
       { 
         returnDocument: 'after', 
-        runValidators: true
       }
     )
 
